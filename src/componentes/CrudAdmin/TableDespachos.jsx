@@ -7,8 +7,7 @@ export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
 
   const despacho = async () => {
-    await axios
-      .get("http://192.168.3.20/api/v1/despachos", {
+    await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`, {
         headers:{
               'Content-Type': 'application/json',
               'Accept': 'application/json'
