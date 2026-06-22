@@ -22,7 +22,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # --- Autenticacion con AWS ---
       - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -35,22 +34,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # --- Obtener la URL del ALB desde Doppler (o secret de GitHub) ---
-      - name: Instalar Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
-      - name: Configurar Doppler CLI
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: doppler setup --token $DOPPLER_TOKEN
-
-      - name: Obtener URL del backend desde Doppler
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: |
-          echo "API_BASE_URL=$(doppler secrets get API_BASE_URL --plain)" >> $GITHUB_ENV
-
-      # --- Build y push de la imagen a ECR, con las variables de Vite "quemadas" en build time ---
       - name: Build y push de la imagen Docker a ECR
         uses: docker/build-push-action@v6
         with:
@@ -59,25 +42,21 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: |
-            VITE_API_VENTAS_URL=${{ env.API_BASE_URL }}
-            VITE_API_DESPACHOS_URL=${{ env.API_BASE_URL }}
+            VITE_API_BASE_URL=${{ secrets.API_BASE_URL }}
 
-      # --- Configurar kubectl para hablar con el cluster EKS ---
       - name: Instalar kubectl
         uses: azure/setup-kubectl@v4
         with:
           version: 'latest'
 
-      - name: Actualizar kubeconfig para apuntar al cluster EKS
+      - name: Actualizar kubeconfig para EKS
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-      # --- Aplicar los manifiestos de Kubernetes ---
       - name: Deploy a EKS
         run: kubectl apply -f k8s/
 
-      # --- Forzar que el Deployment tome la nueva imagen ---
-      - name: Reiniciar el Deployment para tomar la nueva imagen
+      - name: Reiniciar Deployment para tomar nueva imagen
         run: kubectl rollout restart deployment/frontend
 
-      - name: Esperar a que el rollout termine
+      - name: Esperar rollout
         run: kubectl rollout status deployment/frontend --timeout=120s
