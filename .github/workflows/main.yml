@@ -59,4 +59,4 @@ jobs:
         run: kubectl rollout restart deployment/frontend
 
       - name: Esperar rollout
-        run: kubectl rollout status deployment/frontend --timeout=120s
+        run: kubectl rollout status deployment/frontend --timeout=300s
