@@ -4,6 +4,7 @@ on:
   repository_dispatch:
     types:
       - frontend
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
