@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-ventas
+  labels:
+    app: back-ventas
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: back-ventas
+  template:
+    metadata:
+      labels:
+        app: back-ventas
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "false"
+        instrumentation.opentelemetry.io/inject-nodejs: "false"
+        instrumentation.opentelemetry.io/inject-python: "false"
+        instrumentation.opentelemetry.io/inject-dotnet: "false"
+    spec:
+      containers:
+        - name: back-ventas
+          image: 633079526033.dkr.ecr.us-east-1.amazonaws.com/ventas-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: db-credentials
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /swagger-ui.html
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /swagger-ui.html
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-ventas-svc
+spec:
+  selector:
+    app: back-ventas
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
