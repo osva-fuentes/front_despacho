@@ -6,24 +6,32 @@ import { FormCierreDespacho } from "./FormCierreDespacho";
 export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
 
-  const despacho = async () => {
+  // Le cambié el nombre a la función para que no se confunda con la variable
+  const cargarDespachos = async () => {
     try {
       const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`);
-      setDespachos(response.data);
+      
+      // ¡Aquí está el chismoso que nos dirá qué devuelve el backend!
+      console.log("Datos recibidos en Despachos:", response.data);
+      
+      // Blindaje total: forzamos que sea un array siempre
+      const datos = Array.isArray(response.data) ? response.data : [response.data];
+      setDespachos(datos);
     } catch (error) {
       console.error("Error al cargar despachos:", error);
+      setDespachos([]); // Si hay error, evitamos que la página explote
     }
   };
 
   useEffect(() => {
-    despacho();
+    cargarDespachos();
   }, []);
 
   const [openModal, setOpenModal] = useState(false);
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
 
-  const handleAbrirModal = (despacho) => {
-    setDespachoSeleccionado(despacho);
+  const handleAbrirModal = (d) => {
+    setDespachoSeleccionado(d);
     setOpenModal(true);
   };
 
@@ -46,25 +54,34 @@ export const TableDespachos = () => {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(despachos) && despachos.map((d) => (
-                  <tr key={d.idDespacho}>
-                    <td className="py-10">{d.idDespacho}</td>
-                    <td className="py-10">{d.idCompra}</td>
-                    <td className="py-10">{d.direccionCompra}</td>
-                    <td className="py-10">{d.fechaDespacho}</td>
-                    <td className="py-10">{d.patenteCamion}</td>
-                    <td className="py-10">{d.entregado ? "Entregado" : "Pendiente"}</td>
-                    <td className="py-10">{d.intento}</td>
-                    <td>
-                      <button
-                        onClick={() => handleAbrirModal(d)}
-                        className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300"
-                      >
-                        Cerrar despacho
-                      </button>
+                {/* Lógica segura: Si es array y tiene datos, dibuja. Si no, muestra el mensaje */}
+                {Array.isArray(despachos) && despachos.length > 0 ? (
+                  despachos.map((d) => (
+                    <tr key={d.idDespacho}>
+                      <td className="py-10">{d.idDespacho}</td>
+                      <td className="py-10">{d.idCompra}</td>
+                      <td className="py-10">{d.direccionCompra}</td>
+                      <td className="py-10">{d.fechaDespacho}</td>
+                      <td className="py-10">{d.patenteCamion}</td>
+                      <td className="py-10">{d.entregado ? "Entregado" : "Pendiente"}</td>
+                      <td className="py-10">{d.intento}</td>
+                      <td>
+                        <button
+                          onClick={() => handleAbrirModal(d)}
+                          className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300"
+                        >
+                          Cerrar despacho
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="py-10 text-slate-500">
+                      No hay órdenes de despacho registradas en el sistema.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -74,7 +91,7 @@ export const TableDespachos = () => {
         {despachoSeleccionado && (
           <FormCierreDespacho
             despacho={despachoSeleccionado}
-            onClose={() => { setOpenModal(false); despacho(); }}
+            onClose={() => { setOpenModal(false); cargarDespachos(); }}
           />
         )}
       </Modal>
