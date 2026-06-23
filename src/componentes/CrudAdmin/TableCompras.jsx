@@ -9,9 +9,16 @@ export const TableCompras = () => {
   const compras = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas`);
-      setVentas(response.data);
+      console.log("Datos recibidos:", response.data);
+      
+      // FORZAMOS a que sea un array SIEMPRE:
+      // Si recibimos un objeto, lo ponemos dentro de []
+      // Si recibimos un array, lo dejamos igual
+      const datos = Array.isArray(response.data) ? response.data : [response.data];
+      
+      setVentas(datos);
     } catch (error) {
-      console.error("Error al cargar ventas:", error);
+      console.error("Error al cargar:", error);
     }
   };
 
