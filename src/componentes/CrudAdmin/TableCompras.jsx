@@ -11,14 +11,12 @@ export const TableCompras = () => {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas`);
       console.log("Datos recibidos:", response.data);
       
-      // FORZAMOS a que sea un array SIEMPRE:
-      // Si recibimos un objeto, lo ponemos dentro de []
-      // Si recibimos un array, lo dejamos igual
+      // Si recibimos un objeto, lo metemos en un array, si es array, lo dejamos igual
       const datos = Array.isArray(response.data) ? response.data : [response.data];
-      
       setVentas(datos);
     } catch (error) {
       console.error("Error al cargar:", error);
+      setVentas([]); // En caso de error, aseguramos que sea un array vacío
     }
   };
 
@@ -50,24 +48,32 @@ export const TableCompras = () => {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(ventas) && ventas
-                  .filter((venta) => !venta.despachoGenerado)
-                  .map((venta) => (
-                    <tr key={venta.idVenta}>
-                      <td className="pr-10 py-10">{venta.idVenta}</td>
-                      <td className="pr-10 py-10">{venta.direccionCompra}</td>
-                      <td className="pr-10 py-10">{venta.fechaCompra}</td>
-                      <td className="pr-10 py-10">${venta.valorCompra}</td>
-                      <td>
-                        <button
-                          onClick={() => handleAbrirModal(venta)}
-                          className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all"
-                        >
-                          Generar Despacho
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                {Array.isArray(ventas) && ventas.length > 0 ? (
+                  ventas
+                    .filter((venta) => venta && !venta.despachoGenerado)
+                    .map((venta) => (
+                      <tr key={venta.idVenta}>
+                        <td className="pr-10 py-10">{venta.idVenta}</td>
+                        <td className="pr-10 py-10">{venta.direccionCompra}</td>
+                        <td className="pr-10 py-10">{venta.fechaCompra}</td>
+                        <td className="pr-10 py-10">${venta.valorCompra}</td>
+                        <td>
+                          <button
+                            onClick={() => handleAbrirModal(venta)}
+                            className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all"
+                          >
+                            Generar Despacho
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="py-10 text-slate-500">
+                      No hay ventas pendientes de despacho.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
