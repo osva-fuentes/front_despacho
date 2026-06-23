@@ -7,18 +7,14 @@ export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
 
   const despacho = async () => {
-    await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`, {
-        headers:{
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-        }
-      })
-      .then((response) => {
-        console.log(response.data);
-        setDespachos(response.data);
-      });
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`);
+      setDespachos(response.data);
+    } catch (error) {
+      console.error("Error al cargar despachos:", error);
+    }
   };
-  // Llamada a la función para obtener los datos cuando el componente se monta
+
   useEffect(() => {
     despacho();
   }, []);
@@ -36,48 +32,33 @@ export const TableDespachos = () => {
       <section className="grid text-center grid-cols-12 mb-8">
         <div className="col-span-12 flex justify-center">
           <div className="col-span-10 p-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-white h-full overflow-hidden">
-            <table className="table-fixed">
+            <table className="table-fixed w-full">
               <thead>
-                <tr className="py-10">
+                <tr>
                   <th className="pr-10">Orden de despacho</th>
                   <th className="pr-10">Orden de compra</th>
-                  <th className="pr-10">Dirección de entrega</th>
+                  <th className="pr-10">Dirección</th>
                   <th className="pr-10">Fecha despacho</th>
-                  <th className="pr-10">Patente Camión</th>
-                  <th className="pr-10">Entregado</th>
-                  <th className="pr-10">Intentos de entrega</th>
+                  <th className="pr-10">Patente</th>
+                  <th className="pr-10">Estado</th>
+                  <th className="pr-10">Intentos</th>
+                  <th className="pr-10"></th>
                 </tr>
               </thead>
               <tbody>
-                {despachos
-               
-                .map((despacho) => (
-                  <tr key={despacho.idDespacho}>
-                    <td className="pr-10 py-10 items-center">{despacho.idDespacho}</td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.idCompra}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.direccionCompra}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.fechaDespacho}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.patenteCamion}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.entregado
-                        ? "Despacho entregado"
-                        : "Despacho pendiente"}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.intento}
-                    </td>
+                {Array.isArray(despachos) && despachos.map((d) => (
+                  <tr key={d.idDespacho}>
+                    <td className="py-10">{d.idDespacho}</td>
+                    <td className="py-10">{d.idCompra}</td>
+                    <td className="py-10">{d.direccionCompra}</td>
+                    <td className="py-10">{d.fechaDespacho}</td>
+                    <td className="py-10">{d.patenteCamion}</td>
+                    <td className="py-10">{d.entregado ? "Entregado" : "Pendiente"}</td>
+                    <td className="py-10">{d.intento}</td>
                     <td>
                       <button
-                        onClick={() => handleAbrirModal(despacho)}
-                        className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all duration-300 "
+                        onClick={() => handleAbrirModal(d)}
+                        className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300"
                       >
                         Cerrar despacho
                       </button>
@@ -89,19 +70,11 @@ export const TableDespachos = () => {
           </div>
         </div>
       </section>
-      <Modal
-        onClose={() => {
-          setOpenModal(false);
-        }}
-        open={openModal}
-      >
+      <Modal onClose={() => setOpenModal(false)} open={openModal}>
         {despachoSeleccionado && (
           <FormCierreDespacho
             despacho={despachoSeleccionado}
-            onClose={() => {
-              //onclose es un prop que pasa funciones al modal con el form abierto, por ende al cerrarse, se ejecutan esas 2 funciones
-              setOpenModal(false), despacho();
-            }}
+            onClose={() => { setOpenModal(false); despacho(); }}
           />
         )}
       </Modal>

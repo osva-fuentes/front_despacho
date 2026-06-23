@@ -6,7 +6,7 @@ export const FormDespacho = ({ venta, onClose }) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data) => {
-    console.log("onSubmit ejecutado");
+    // Estructura limpia para enviar a tu API
     const jsonData = {
       fechaDespacho: data.fechaDespacho,
       patenteCamion: data.patenteCamion,
@@ -14,107 +14,56 @@ export const FormDespacho = ({ venta, onClose }) => {
       entregado: false,
       idCompra: venta.idVenta,
       direccionCompra: venta.direccionCompra,
-      valorCompra: venta.valorCompra,
+      valorCompra: Number(venta.valorCompra), // Aseguramos formato numérico
     };
 
     const jsonDataSales = {
       despachoGenerado: true,
     };
 
-    console.log("Datos del formulario:", jsonData);
-
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas/${venta.idVenta}`,
-        jsonDataSales,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
-      );
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`, jsonData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      // 1. Primero actualizamos el estado de la venta
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas/${venta.idVenta}`, jsonDataSales);
+      
+      // 2. Luego creamos el despacho
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`, jsonData);
+      
       Swal.fire({
         title: "Despacho registrado 🛻!",
-        text: "El despacho ha sido generado con éxito en la base de datos",
+        text: "El despacho ha sido generado con éxito",
         icon: "success",
         confirmButtonText: "Aceptar",
       });
+      onClose(); // Solo cerramos si todo salió bien
     } catch (error) {
       console.error("Error en la solicitud:", error);
+      Swal.fire("Error", "No se pudo registrar el despacho. Revisa la consola.", "error");
     }
-    onClose();
   };
-  return (
-    <>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col justify-center text-center px-24 text-xl"
-      >
-        <div className="mx-auto text-3xl font-bold mb-10 text-teal-600">
-          Ingreso de orden de despacho
-        </div>
-        <div className="mb-5">
-          <label className="block font-bold mb-2">Fecha de despacho</label>
-          <input
-            type="date"
-            placeholder="Ingresa fecha de despacho"
-            className="border border-gray-300 rounded-lg block w-full p-1"
-            {...register("fechaDespacho", { required: true })}
-          />
-        </div>
-        <div className="mb-5">
-          <label className="block font-bold mb-2">Patente de camión</label>
-          <input
-            type="text"
-            placeholder="Elige patente de camión"
-            className="border border-gray-300 rounded-lg block w-full p-1"
-            {...register("patenteCamion", { required: true })}
-          />
-        </div>
-        <div className="mb-5">
-          <label className="block font-bold mb-2">
-            Orden de compra asociado
-          </label>
-          <input
-            type="number"
-            disabled={true}
-            value={venta.idVenta}
-            className="border border-gray-300 rounded-lg block w-full text-slate-400 p-1"
-          />
-        </div>
-        <div className="mb-5">
-          <label className="block font-bold mb-2">Dirección de entrega</label>
-          <input
-            type="text"
-            disabled={true}
-            value={venta.direccionCompra}
-            className="border border-gray-300 rounded-lg block w-full text-slate-400 p-1"
-          />
-        </div>
-        <div className="mb-5">
-          <label className="block font-bold mb-2">Valor de compra</label>
-          <input
-            type="number"
-            value={venta.valorCompra}
-            className="border border-gray-300 rounded-lg block w-full text-slate-400 p-1"
-            disabled={true}
-          />
-        </div>
 
-        <button
-          className="py-6 px-14 rounded-lg bg-teal-600 text-white font-bold mb-14"
-          type="submit"
-        >
-          Asignar despacho
-        </button>
-      </form>
-    </>
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center text-center px-24 text-xl">
+      <div className="mx-auto text-3xl font-bold mb-10 text-teal-600">Ingreso de orden de despacho</div>
+      
+      <div className="mb-5">
+        <label className="block font-bold mb-2">Fecha de despacho</label>
+        <input type="date" className="border rounded-lg w-full p-1" {...register("fechaDespacho", { required: true })} />
+      </div>
+      
+      <div className="mb-5">
+        <label className="block font-bold mb-2">Patente de camión</label>
+        <input type="text" className="border rounded-lg w-full p-1" {...register("patenteCamion", { required: true })} />
+      </div>
+
+      {/* Campos de solo lectura */}
+      <div className="mb-5">
+        <label className="block font-bold mb-2">ID Compra</label>
+        <input type="text" disabled className="border rounded-lg w-full text-slate-400 p-1" value={venta.idVenta} />
+      </div>
+
+      <button className="py-4 px-10 rounded-lg bg-teal-600 text-white font-bold" type="submit">
+        Asignar despacho
+      </button>
+    </form>
   );
 };
