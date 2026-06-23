@@ -23,10 +23,10 @@ export const FormDespacho = ({ venta, onClose }) => {
 
     try {
       // 1. Primero actualizamos el estado de la venta
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas/${venta.idVenta}`, jsonDataSales);
+      await axios.put(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/ventas/${venta.idVenta}`, jsonDataSales);
       
       // 2. Luego creamos el despacho
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`, jsonData);
+      await axios.post(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`, jsonData);
       
       Swal.fire({
         title: "Despacho registrado 🛻!",

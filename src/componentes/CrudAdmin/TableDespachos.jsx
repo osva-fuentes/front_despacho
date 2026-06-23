@@ -8,7 +8,7 @@ export const TableDespachos = () => {
 
   const despacho = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/despachos`);
+      const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`);
       setDespachos(response.data);
     } catch (error) {
       console.error("Error al cargar despachos:", error);

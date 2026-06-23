@@ -8,7 +8,7 @@ export const TableCompras = () => {
 
   const compras = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/ventas`);
+      const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/ventas`);
       console.log("Datos recibidos:", response.data);
       
       // Si recibimos un objeto, lo metemos en un array, si es array, lo dejamos igual
