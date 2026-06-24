@@ -10,7 +10,7 @@ export const TableDespachos = () => {
   const cargarDespachos = async () => {
     try {
       // CAMBIA LA URL AQUÍ POR TU PUERTO LOCAL 30082
-      const response = await axios.get(`http://localhost:30082/api/v1/despachos`);
+      const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`);
       
       console.log("Datos recibidos en Despachos:", response.data);
       

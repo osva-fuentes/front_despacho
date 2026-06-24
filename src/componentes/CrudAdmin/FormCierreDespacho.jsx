@@ -13,7 +13,7 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
 
     try {
       // CAMBIA LA URL AQUÍ POR TU PUERTO LOCAL 30082
-      await axios.put(`http://localhost:30082/api/v1/despachos/${despacho.idDespacho}`, jsonData);
+      await axios.put(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos/${despacho.idDespacho}`, jsonData);
       
       Swal.fire("Despacho modificado!", "Éxito", "success");
       onClose();
