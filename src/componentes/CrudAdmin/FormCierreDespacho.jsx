@@ -8,15 +8,18 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
   const onSubmit = async (data) => {
     const jsonData = {
       intento: parseInt(data.intento),
-      despachado: data.despachado === "true" // Esto convierte el string a boolean
+      despachado: data.despachado === "true" 
     };
 
     try {
-      await axios.put(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos/${despacho.idDespacho}`, jsonData);
+      // CAMBIA LA URL AQUÍ POR TU PUERTO LOCAL 30082
+      await axios.put(`http://localhost:30082/api/v1/despachos/${despacho.idDespacho}`, jsonData);
+      
       Swal.fire("Despacho modificado!", "Éxito", "success");
       onClose();
     } catch (error) {
       console.error("Error:", error);
+      Swal.fire("Error", "No se pudo modificar el despacho", "error");
     }
   };
 

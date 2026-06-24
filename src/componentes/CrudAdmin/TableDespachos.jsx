@@ -9,17 +9,16 @@ export const TableDespachos = () => {
   // Le cambié el nombre a la función para que no se confunda con la variable
   const cargarDespachos = async () => {
     try {
-      const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`);
+      // CAMBIA LA URL AQUÍ POR TU PUERTO LOCAL 30082
+      const response = await axios.get(`http://localhost:30082/api/v1/despachos`);
       
-      // ¡Aquí está el chismoso que nos dirá qué devuelve el backend!
       console.log("Datos recibidos en Despachos:", response.data);
       
-      // Blindaje total: forzamos que sea un array siempre
       const datos = Array.isArray(response.data) ? response.data : [response.data];
       setDespachos(datos);
     } catch (error) {
       console.error("Error al cargar despachos:", error);
-      setDespachos([]); // Si hay error, evitamos que la página explote
+      setDespachos([]);
     }
   };
 

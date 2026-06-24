@@ -14,7 +14,7 @@ export const FormDespacho = ({ venta, onClose }) => {
       entregado: false,
       idCompra: venta.idVenta,
       direccionCompra: venta.direccionCompra,
-      valorCompra: Number(venta.valorCompra), // Aseguramos formato numérico
+      valorCompra: Number(venta.valorCompra),
     };
 
     const jsonDataSales = {
@@ -22,11 +22,11 @@ export const FormDespacho = ({ venta, onClose }) => {
     };
 
     try {
-      // 1. Primero actualizamos el estado de la venta
-      await axios.put(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/ventas/${venta.idVenta}`, jsonDataSales);
+      // 1. Primero actualizamos el estado de la venta (PUERTO 30081)
+      await axios.put(`http://localhost:30081/api/v1/ventas/${venta.idVenta}`, jsonDataSales);
       
-      // 2. Luego creamos el despacho
-      await axios.post(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/despachos`, jsonData);
+      // 2. Luego creamos el despacho (PUERTO 30082)
+      await axios.post(`http://localhost:30082/api/v1/despachos`, jsonData);
       
       Swal.fire({
         title: "Despacho registrado 🛻!",
@@ -34,13 +34,12 @@ export const FormDespacho = ({ venta, onClose }) => {
         icon: "success",
         confirmButtonText: "Aceptar",
       });
-      onClose(); // Solo cerramos si todo salió bien
+      onClose(); 
     } catch (error) {
       console.error("Error en la solicitud:", error);
       Swal.fire("Error", "No se pudo registrar el despacho. Revisa la consola.", "error");
     }
   };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center text-center px-24 text-xl">
       <div className="mx-auto text-3xl font-bold mb-10 text-teal-600">Ingreso de orden de despacho</div>

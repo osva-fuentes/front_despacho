@@ -6,17 +6,17 @@ import axios from "axios";
 export const TableCompras = () => {
   const [ventas, setVentas] = useState([]);
 
-  const compras = async () => {
+ const compras = async () => {
     try {
-      const response = await axios.get(`http://k8s-default-itpcargo-88bda1752a-1431959926.us-east-1.elb.amazonaws.com/api/v1/ventas`);
-      console.log("Datos recibidos:", response.data);
+      // CAMBIA ESTO:
+      const response = await axios.get(`http://localhost:30081/api/v1/ventas`);
       
-      // Si recibimos un objeto, lo metemos en un array, si es array, lo dejamos igual
+      console.log("Datos recibidos:", response.data);
       const datos = Array.isArray(response.data) ? response.data : [response.data];
       setVentas(datos);
     } catch (error) {
       console.error("Error al cargar:", error);
-      setVentas([]); // En caso de error, aseguramos que sea un array vacío
+      setVentas([]);
     }
   };
 
