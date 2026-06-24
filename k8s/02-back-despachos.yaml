@@ -57,4 +57,5 @@ spec:
   ports:
     - port: 8081
       targetPort: 8081
-  type: LoadBalancer
+      nodePort: 30082  # <--- AGREGADO
+  type: NodePort       # <--- CAMBIADO
